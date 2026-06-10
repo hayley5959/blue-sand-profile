@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MERCENARY Profile Card Generator</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(124, 86, 45, 0.24), transparent 38%),
+        linear-gradient(135deg, #05070a 0%, #0b0f16 45%, #050505 100%);
+      color: #e7edf5;
+      font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+      padding: 30px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: 28px;
+      letter-spacing: -0.5px;
+    }
+
+    .page {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .input-panel {
+      width: 360px;
+      background: rgba(10, 14, 20, 0.92);
+      border: 1px solid rgba(150, 104, 55, 0.50);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .input-panel h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      color: #c79a5b;
+      letter-spacing: 1px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #aeb9c8;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(126, 170, 226, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #9b6b35;
+      box-shadow: 0 0 0 2px rgba(155, 107, 53, 0.22);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3d2814, #9b6b35);
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      filter: brightness(1.12);
+    }
+
+    .card-wrap {
+      width: 1200px;
+      max-width: 100%;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    /* 실제 저장될 카드 */
+    #profileCard {
+      width: 1200px;
+      height: 675px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(5, 8, 13, 0.94), rgba(9, 12, 18, 0.96)),
+        radial-gradient(circle at 50% 20%, rgba(87, 60, 31, 0.22), transparent 40%);
+      border: 1px solid rgba(166, 119, 66, 0.38);
+      border-radius: 18px;
+      box-shadow:
+        0 0 0 2px rgba(255,255,255,0.03) inset,
+        0 0 50px rgba(120, 82, 37, 0.24);
+      color: #e9eef7;
+    }
+
+    #profileCard::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    #profileCard::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,0.035) 50%,
+        transparent 51%
+      );
+      background-size: 100% 6px;
+      opacity: 0.12;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 250px 390px 1fr;
+      gap: 22px;
+    }
+
+    .frame {
+      border: 1px solid rgba(166, 119, 66, 0.34);
+      background: rgba(255, 255, 255, 0.025);
+      position: relative;
+    }
+
+    .left-panel {
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .small-title {
+      font-size: 10px;
+      color: #c79a5b;
+      letter-spacing: 1.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .faction-name {
+      margin-top: 6px;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .faction-sub {
+      margin-top: 5px;
+      color: #aab4c1;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .big-badge-box {
+      margin-top: 20px;
+      height: 245px;
+      border: 1px solid rgba(166, 119, 66, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle, rgba(87, 60, 31, 0.24), transparent 58%),
+        rgba(0,0,0,0.18);
+      border-radius: 10px;
+    }
+
+    .big-badge-box img {
+      width: 170px;
+      height: 170px;
+      object-fit: contain;
+      opacity: 0.96;
+      filter: drop-shadow(0 0 12px rgba(199, 154, 91, 0.30));
+    }
+
+    .mini-factions {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .mini {
+      height: 72px;
+      border: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.18);
+      position: relative;
+      font-size: 9px;
+      color: #7f8996;
+      text-align: center;
+      padding-top: 16px;
+    }
+
+    .mini.active {
+      border-color: #9b6b35;
+      box-shadow: 0 0 12px rgba(155, 107, 53, 0.42) inset, 0 0 12px rgba(155, 107, 53, 0.24);
+      color: #f2d0a2;
+    }
+
+    .mini img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      opacity: 0.8;
+      position: absolute;
+      top: 8px;
+    }
+
+    .mini span {
+      position: absolute;
+      bottom: 6px;
+      left: 0;
+      right: 0;
+      font-size: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-mini {
+      display: grid;
+      gap: 10px;
+      font-size: 12px;
+      color: #9ba8b8;
+    }
+
+    .footer-mini strong {
+      display: block;
+      color: #c79a5b;
+      font-size: 16px;
+      letter-spacing: 1.2px;
+      margin-top: 3px;
+    }
+
+    .photo-panel {
+      width: 390px;
+      height: 585px; /* 390 x 585 = 정확히 2:3 */
+      align-self: center;
+      justify-self: center;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: rgba(0,0,0,0.36);
+    }
+
+    .photo-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.08) saturate(0.95);
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #6f7b8a;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background:
+        linear-gradient(135deg, rgba(87, 60, 31, 0.24), transparent),
+        rgba(0,0,0,0.35);
+    }
+
+    .photo-panel .d-day {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      color: #c79a5b;
+      font-weight: 900;
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(199,154,91,0.58);
+    }
+
+    .barcode {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      width: 110px;
+      height: 28px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.75) 0 2px,
+        transparent 2px 5px,
+        rgba(255,255,255,0.45) 5px 7px,
+        transparent 7px 10px
+      );
+      opacity: 0.5;
+    }
+
+    .info-panel {
+      border-radius: 12px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .top-line {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(166, 119, 66, 0.28);
+      background: rgba(255,255,255,0.025);
+    }
+
+    .top-line .title {
+      font-size: 13px;
+      color: #c79a5b;
+      letter-spacing: 2px;
+      font-weight: 900;
+    }
+
+    .top-line .access {
+      font-size: 13px;
+      color: #7cffb0;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+
+    .name-box {
+      padding: 22px 24px 10px;
+      border-bottom: 1px solid rgba(166, 119, 66, 0.24);
+    }
+
+    .name-label {
+      color: #c79a5b;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 900;
+    }
+
+    .char-name {
+      margin-top: 6px;
+      font-size: 42px;
+      font-weight: 950;
+      letter-spacing: -1px;
+    }
+
+    .info-table {
+      padding: 6px 24px 0;
+      flex: 1;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      border-bottom: 1px solid rgba(255,255,255,0.11);
+      min-height: 48px;
+      align-items: center;
+    }
+
+    .row .label {
+      color: #c79a5b;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .row .value {
+      color: #f1f5fa;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .row .value.faction {
+      color: #d6a96a;
+      font-weight: 950;
+    }
+
+    .quote {
+      margin: 16px 24px 20px;
+      min-height: 86px;
+      border: 1px solid rgba(166, 119, 66, 0.24);
+      background: rgba(0,0,0,0.22);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: #dce7f7;
+      line-height: 1.35;
+      position: relative;
+    }
+
+    .quote::before {
+      content: "“";
+      position: absolute;
+      left: 10px;
+      top: -14px;
+      font-size: 70px;
+      color: rgba(199, 154, 91, 0.16);
+      font-family: serif;
+    }
+
+    .bottom-ui {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 14px;
+      height: 20px;
+      display: flex;
+      justify-content: space-between;
+      color: rgba(180, 197, 220, 0.55);
+      font-size: 10px;
+      letter-spacing: 1px;
+      z-index: 4;
+    }
+
+    .accent {
+      color: #9b6b35;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 16px;
+      }
+
+      .input-panel {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>용병 프로필 카드 생성기</h1>
+
+  <div class="page">
+    <div class="input-panel">
+      <h2>PERSONNEL DATA</h2>
+
+      <label>프로필 이미지</label>
+      <input type="file" id="imageInput" accept="image/*" />
+
+      <label>이름</label>
+      <input type="text" id="nameInput" value="마르코 베일" />
+
+      <label>성별 / 나이</label>
+      <input type="text" id="ageInput" value="남 / 34" />
+
+      <label>국적</label>
+      <input type="text" id="nationInput" value="영국" />
+
+      <label>진영</label>
+      <input type="text" id="factionInput" value="용병" />
+
+      <label>직업</label>
+      <input type="text" id="jobInput" value="용병 대원" />
+
+      <label>계급 / 직위</label>
+      <input type="text" id="rankInput" value="용병 지휘관" />
+
+      <label>키워드</label>
+      <input type="text" id="keywordInput" value="#PMC #호송전문 #현실주의" />
+
+      <label>한마디</label>
+      <textarea id="quoteInput">돈이 되는 쪽이, 오늘의 아군이다.</textarea>
+
+      <button onclick="downloadCard()">PNG로 저장</button>
+    </div>
+
+    <div class="card-wrap">
+      <div id="profileCard">
+        <div class="card-inner">
+          <!-- LEFT -->
+          <div class="left-panel frame">
+            <div>
+              <div class="small-title">FACTION</div>
+              <div class="faction-name">MERCENARY</div>
+              <div class="faction-sub">PRIVATE CONTRACTOR</div>
+
+              <div class="big-badge-box">
+                <img src="badge_mercenary.png" alt="Mercenary Badge" />
+              </div>
+
+              <div class="mini-factions">
+                <div class="mini">
+                  <img src="badge_bluesand.png" alt="" />
+                  <span>BLUE SAND</span>
+                </div>
+                <div class="mini">
+                  <img src="badge_navarre.png" alt="" />
+                  <span>NAVARRE</span>
+                </div>
+                <div class="mini">
+                  <img src="badge_rebel.png" alt="" />
+                  <span>REBEL</span>
+                </div>
+                <div class="mini active">
+                  <img src="badge_mercenary.png" alt="" />
+                  <span>MERCENARY</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-mini">
+              <div>
+                DEPLOYMENT REGION
+                <strong>AZRA PORT</strong>
+              </div>
+              <div>
+                OPERATION STATUS
+                <strong>STANDBY</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTER PHOTO -->
+          <div class="photo-panel frame">
+            <div class="photo-placeholder" id="photoPlaceholder">
+              PROFILE IMAGE<br />UPLOAD
+            </div>
+            <img id="profileImage" style="display:none;" />
+            <div class="d-day">D-30</div>
+            <div class="barcode"></div>
+          </div>
+
+          <!-- RIGHT INFO -->
+          <div class="info-panel frame">
+            <div class="top-line">
+              <div class="title">MERCENARY · PERSONNEL FILE</div>
+              <div class="access">ACCESS LV.5</div>
+            </div>
+
+            <div class="name-box">
+              <div class="name-label">NAME</div>
+              <div class="char-name" id="cardName">마르코 베일</div>
+            </div>
+
+            <div class="info-table">
+              <div class="row">
+                <div class="label">성별/나이</div>
+                <div class="value" id="cardAge">남 / 34</div>
+              </div>
+              <div class="row">
+                <div class="label">국적</div>
+                <div class="value" id="cardNation">영국</div>
+              </div>
+              <div class="row">
+                <div class="label">진영</div>
+                <div class="value faction" id="cardFaction">용병</div>
+              </div>
+              <div class="row">
+                <div class="label">직업</div>
+                <div class="value" id="cardJob">용병 대원</div>
+              </div>
+              <div class="row">
+                <div class="label">계급/직위</div>
+                <div class="value" id="cardRank">용병 지휘관</div>
+              </div>
+              <div class="row">
+                <div class="label">키워드</div>
+                <div class="value accent" id="cardKeyword">#PMC #호송전문 #현실주의</div>
+              </div>
+            </div>
+
+            <div class="quote" id="cardQuote">
+              돈이 되는 쪽이, 오늘의 아군이다.
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-ui">
+          <span>REPUBLIC OF MERCENARY · PRIVATE CONTRACTOR FORCE</span>
+          <span>AUTHORIZED ACCESS ONLY · CONTRACT ACCESS ONLY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fields = [
+      ["nameInput", "cardName"],
+      ["ageInput", "cardAge"],
+      ["nationInput", "cardNation"],
+      ["factionInput", "cardFaction"],
+      ["jobInput", "cardJob"],
+      ["rankInput", "cardRank"],
+      ["keywordInput", "cardKeyword"],
+      ["quoteInput", "cardQuote"]
+    ];
+
+    fields.forEach(([inputId, cardId]) => {
+      const input = document.getElementById(inputId);
+      const output = document.getElementById(cardId);
+
+      input.addEventListener("input", () => {
+        output.textContent = input.value;
+      });
+    });
+
+    document.getElementById("imageInput").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const img = document.getElementById("profileImage");
+        const placeholder = document.getElementById("photoPlaceholder");
+
+        img.src = e.target.result;
+        img.style.display = "block";
+        placeholder.style.display = "none";
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    function downloadCard() {
+      const card = document.getElementById("profileCard");
+
+      html2canvas(card, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "mercenary-profile-card.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
