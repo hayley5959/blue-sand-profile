@@ -380,7 +380,7 @@
       color: #78c884;
       letter-spacing: 1px;
       font-weight: 950;
-      text-shadow: 0 0 8px color-mix(in srgb, #78c884, transparent 55%);
+      text-shadow: 0 0 8px rgba(120, 200, 132, 0.45);
     }
 
     .top-line .access.minor {
@@ -460,13 +460,8 @@
       color: rgba(120, 220, 140, 0.16);
       font-family: serif;
     }
-    .owner-status-badge {
-      display: none;
-    }
-
-    .owner-status-badge.minor {
-      display: none;
-    }
+    .owner-status-badge { display: none; }
+    .owner-status-badge.minor { display: none; }
 
     .bottom-ui {
       position: absolute;
@@ -495,6 +490,38 @@
         width: 100%;
       }
     }
+  
+    /* v6: bottom micro text overlap fix */
+    .left-footer,
+    .right-footer,
+    .micro-footer,
+    .authorized,
+    .footer-text,
+    .card-code,
+    .bottom-code,
+    .card-bottom,
+    .panel-footer {
+      bottom: 14px !important;
+      line-height: 1 !important;
+      font-size: 10px !important;
+      letter-spacing: 1px !important;
+      opacity: 0.58 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: calc(100% - 48px) !important;
+    }
+
+    .left-panel::after,
+    .info-panel::after {
+      bottom: 14px !important;
+      line-height: 1 !important;
+      font-size: 10px !important;
+      opacity: 0.58 !important;
+      white-space: nowrap !important;
+    }
+
+
   </style>
 </head>
 
@@ -697,19 +724,33 @@
       reader.readAsDataURL(file);
     });
 
-    function downloadCard() {
+    async function downloadCard() {
       const card = document.getElementById("profileCard");
 
-      html2canvas(card, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true
-      }).then(canvas => {
+      if (typeof html2canvas === "undefined") {
+        alert("PNG 저장 모듈을 불러오지 못했습니다. 잠시 후 새로고침한 뒤 다시 시도해 주세요.");
+        return;
+      }
+
+      try {
+        const canvas = await html2canvas(card, {
+          backgroundColor: null,
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false
+        });
+
         const link = document.createElement("a");
-        link.download = "blue-sand-profile-card.png";
+        link.download = "navarre-profile-card.png";
         link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
         link.click();
-      });
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error(error);
+        alert("PNG 저장 중 오류가 났습니다. 이미지나 브라우저 보안 설정 문제일 수 있어요.");
+      }
     }
   </script>
 </body>
