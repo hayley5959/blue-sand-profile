@@ -167,12 +167,12 @@
     }
 
     .faction-card {
-      min-height: 390px;
+      min-height: 430px;
       text-decoration: none;
       color: var(--text);
       border: 1px solid var(--line);
       border-radius: 18px;
-      padding: 18px;
+      padding: 18px 18px 78px;
       background:
         linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
         rgba(5, 8, 13, 0.82);
@@ -287,6 +287,16 @@
       letter-spacing: 1px;
     }
 
+    .ko-name {
+      position: relative;
+      z-index: 2;
+      margin-top: 6px;
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.2px;
+    }
+
     .sub {
       position: relative;
       z-index: 2;
@@ -295,7 +305,7 @@
       margin-top: 8px;
       line-height: 1.55;
       letter-spacing: 0.8px;
-      min-height: 38px;
+      min-height: 52px;
     }
 
     .enter {
@@ -345,7 +355,7 @@
       }
 
       .faction-card {
-        min-height: 330px;
+        min-height: 370px;
       }
 
       .badge-box {
@@ -394,6 +404,7 @@
           <img src="badge_bluesand.png" alt="BLUE SAND Badge" />
         </div>
         <div class="name">BLUE SAND</div>
+        <div class="ko-name">블루샌드 캠프</div>
         <div class="sub">MULTINATIONAL<br />PEACEKEEPING FORCE</div>
         <div class="enter">ENTER FILE</div>
       </a>
@@ -407,6 +418,7 @@
           <img src="badge_navarre.png" alt="NAVARRE Badge" />
         </div>
         <div class="name">NAVARRE</div>
+        <div class="ko-name">나바르 중앙정부군</div>
         <div class="sub">CENTRAL<br />GOVERNMENT FORCE</div>
         <div class="enter">ENTER FILE</div>
       </a>
@@ -420,6 +432,7 @@
           <img src="badge_rebel.png" alt="REBEL Badge" />
         </div>
         <div class="name">REBEL</div>
+        <div class="ko-name">반군</div>
         <div class="sub">RESISTANCE<br />CELL</div>
         <div class="enter">ENTER FILE</div>
       </a>
@@ -433,6 +446,7 @@
           <img src="badge_mercenary.png" alt="MERCENARY Badge" />
         </div>
         <div class="name">MERCENARY</div>
+        <div class="ko-name">용병</div>
         <div class="sub">PRIVATE<br />CONTRACTOR</div>
         <div class="enter">ENTER FILE</div>
       </a>

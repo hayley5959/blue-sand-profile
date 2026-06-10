@@ -62,7 +62,8 @@
     }
 
     input,
-    textarea {
+    textarea,
+    select {
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
@@ -73,8 +74,14 @@
       outline: none;
     }
 
+    select option {
+      background: #0b0f16;
+      color: #fff;
+    }
+
     input:focus,
-    textarea:focus {
+    textarea:focus,
+    select:focus {
       border-color: #9b6b35;
       box-shadow: 0 0 0 2px rgba(155, 107, 53, 0.22);
     }
@@ -370,9 +377,14 @@
 
     .top-line .access {
       font-size: 13px;
-      color: #7cffb0;
+      color: #c79a5b;
       letter-spacing: 1px;
-      font-weight: 800;
+      font-weight: 950;
+      text-shadow: 0 0 8px color-mix(in srgb, #c79a5b, transparent 55%);
+    }
+
+    .top-line .access.minor {
+      color: #c79a5b;
     }
 
     .name-box {
@@ -448,6 +460,13 @@
       color: rgba(199, 154, 91, 0.16);
       font-family: serif;
     }
+    .owner-status-badge {
+      display: none;
+    }
+
+    .owner-status-badge.minor {
+      display: none;
+    }
 
     .bottom-ui {
       position: absolute;
@@ -509,6 +528,12 @@
 
       <label>키워드</label>
       <input type="text" id="keywordInput" value="#PMC #호송전문 #현실주의" />
+
+      <label>봇주 성인 / 미성년자 여부 <span style="color:#7f8996;">(카드에는 20↑ / 20↓로 표시)</span></label>
+      <select id="ownerStatusInput">
+        <option value="성인">성인</option>
+        <option value="미성년자">미성년자</option>
+      </select>
 
       <label>한마디</label>
       <textarea id="quoteInput">돈이 되는 쪽이, 오늘의 아군이다.</textarea>
@@ -576,7 +601,7 @@
           <div class="info-panel frame">
             <div class="top-line">
               <div class="title">MERCENARY · PERSONNEL FILE</div>
-              <div class="access">ACCESS LV.5</div>
+              <div class="access" id="ownerStatusBadge">20↑</div>
             </div>
 
             <div class="name-box">
@@ -616,8 +641,7 @@
             </div>
           </div>
         </div>
-
-        <div class="bottom-ui">
+<div class="bottom-ui">
           <span>REPUBLIC OF MERCENARY · PRIVATE CONTRACTOR FORCE</span>
           <span>AUTHORIZED ACCESS ONLY · CONTRACT ACCESS ONLY</span>
         </div>
@@ -644,6 +668,15 @@
       input.addEventListener("input", () => {
         output.textContent = input.value;
       });
+    });
+
+    const ownerStatusInput = document.getElementById("ownerStatusInput");
+    const ownerStatusBadge = document.getElementById("ownerStatusBadge");
+
+    ownerStatusInput.addEventListener("change", () => {
+      const isMinor = ownerStatusInput.value === "미성년자";
+      ownerStatusBadge.textContent = isMinor ? "20↓" : "20↑";
+      ownerStatusBadge.classList.toggle("minor", isMinor);
     });
 
     document.getElementById("imageInput").addEventListener("change", function (event) {
